@@ -1,11 +1,51 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QPushButton, QGraphicsScene, QGraphicsView, \
-    QTableWidget, QTableWidgetItem, QInputDialog, QGraphicsRectItem
+    QTableWidget, QTableWidgetItem, QInputDialog, QGraphicsRectItem,QLabel,QLineEdit,QVBoxLayout,QDialog,QComboBox
 from PyQt5.QtGui import QColor, QBrush, QPen
 from PyQt5.QtCore import Qt, QPointF, QRectF
 
 
+class InputDialog(QDialog):
 
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle('Внесите данные маршрутизатора')
+        self.layout = QVBoxLayout()
+
+        self.ipLabel = QLabel('IP-адрес:', self)
+        self.ipLineEdit = QLineEdit(self)
+        self.layout.addWidget(self.ipLabel)
+        self.layout.addWidget(self.ipLineEdit)
+
+        self.dnsLabel = QLabel('DNS-имя:', self)
+        self.dnsLineEdit = QLineEdit(self)
+        self.layout.addWidget(self.dnsLabel)
+        self.layout.addWidget(self.dnsLineEdit)
+
+        self.portLabel = QLabel('Количество портов:', self)
+        self.portComboBox = QComboBox(self)
+        self.portComboBox.addItems(['4', '8', '16'])
+        self.layout.addWidget(self.portLabel)
+        self.layout.addWidget(self.portComboBox)
+
+        self.okButton = QPushButton('OK', self)
+        self.okButton.clicked.connect(self.acceptDialog)
+        self.layout.addWidget(self.okButton)
+
+        self.cancelButton = QPushButton('Cancel', self)
+        self.cancelButton.clicked.connect(self.rejectDialog)
+        self.layout.addWidget(self.cancelButton)
+
+        self.setLayout(self.layout)
+
+    def acceptDialog(self):
+        self.accept()
+
+    def rejectDialog(self):
+        self.reject()
 
 class Object:
 
@@ -58,7 +98,7 @@ class MyWindow(QMainWindow):
         # Определяем размеры экрана пользователя
         screen = QDesktopWidget().screenGeometry()
         width, height = screen.width(), screen.height()
-
+        self.dialog = InputDialog()
         # Устанавливаем размеры окна
         self.setGeometry(0, 0, width, height)
 
@@ -85,6 +125,10 @@ class MyWindow(QMainWindow):
         self.add_pc_button = QPushButton('Добавить PC', self)
         self.add_pc_button.clicked.connect(lambda: self.add_object('pc'))
         self.add_pc_button.setGeometry(10, 150, 150, 30)
+
+        self.add_pc_button = QPushButton('ДBFKJU', self)
+        self.add_pc_button.clicked.connect(lambda: self.dialog.exec())
+        self.add_pc_button.setGeometry(10, 200, 150, 30)
         
         # Создаем список объектов
         self.objects = []
