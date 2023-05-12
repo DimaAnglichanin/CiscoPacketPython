@@ -1,10 +1,53 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QPushButton, QGraphicsScene, QGraphicsView, \
-    QTableWidget, QTableWidgetItem, QInputDialog
+    QTableWidget, QTableWidgetItem, QInputDialog, QGraphicsRectItem
 from PyQt5.QtGui import QColor, QBrush, QPen
 from PyQt5.QtCore import Qt, QPointF, QRectF
 
 
+
+
+class Object:
+
+    def get_type(self) -> str:
+        return self.type
+
+    def get_rect(self) -> QGraphicsRectItem:
+        return self.rect
+
+class Router(Object):
+    def __init__(self):
+        self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(30, 30)))
+        self.rect.setFlag(self.rect.ItemIsMovable)
+        self.rect.setPen(QPen(Qt.black))
+        self.rect.setBrush(QBrush(Qt.gray))
+        
+        self.type = "router"
+class Switch(Object):
+    def __init__(self):
+        self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(50, 30)))
+        self.rect.setFlag(self.rect.ItemIsMovable)
+        self.rect.setPen(QPen(Qt.black))
+        self.rect.setBrush(QBrush(Qt.white))
+
+        
+        self.type = "switch"
+class PC(Object):
+    def __init__(self):
+        self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(30, 30)))
+        self.rect.setFlag(self.rect.ItemIsMovable)
+        self.rect.setPen(QPen(Qt.black))
+        self.rect.setBrush(QBrush(Qt.gray))
+        self.type = "pc"
+
+def create_object_of_type(type : str) -> Object:
+    if type == 'switch':
+        obj = Switch()
+    elif type == 'router':
+        obj = Router()
+    elif type == 'pc':
+        obj = PC()
+    return obj
 class MyWindow(QMainWindow):
 
     def __init__(self):
@@ -42,23 +85,15 @@ class MyWindow(QMainWindow):
         self.add_pc_button = QPushButton('Добавить PC', self)
         self.add_pc_button.clicked.connect(lambda: self.add_object('pc'))
         self.add_pc_button.setGeometry(10, 150, 150, 30)
-
+        
         # Создаем список объектов
         self.objects = []
 
         self.show()
 
     def add_object(self, object_type):
-        if object_type == 'switch':
-            obj = self.scene.addRect(QRectF(QPointF(0, 0), QPointF(50, 30)), QPen(Qt.black), QBrush(Qt.white))
-            obj.setFlag(obj.ItemIsMovable)
-        elif object_type == 'router':
-            obj = self.scene.addEllipse(QRectF(QPointF(0, 0), QPointF(50, 50)), QPen(Qt.black), QBrush(Qt.white))
-            obj.setFlag(obj.ItemIsMovable)
-        elif object_type == 'pc':
-            obj = self.scene.addRect(QRectF(QPointF(0, 0), QPointF(30, 30)), QPen(Qt.black), QBrush(Qt.gray))
-            obj.setFlag(obj.ItemIsMovable)
-
+        obj = create_object_of_type(object_type)
+        self.scene.addItem(obj.get_rect())
         self.objects.append(obj)
     def open_table(self, obj):
     # Create a dialog to get the IP address from the user
