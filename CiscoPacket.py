@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QPushButt
     QTableWidget, QTableWidgetItem, QInputDialog, QGraphicsRectItem,QLabel,QLineEdit,QVBoxLayout,QDialog,QComboBox
 from PyQt5.QtGui import QColor, QBrush, QPen
 from PyQt5.QtCore import Qt, QPointF, QRectF,pyqtSignal,QTimer,pyqtSlot
-
+from PyQt5.QtWidgets import QGraphicsItem
 
 
 class InputDialog(QDialog):
@@ -48,48 +48,32 @@ class InputDialog(QDialog):
     def rejectDialog(self):
         self.reject()
 
-class Object:
-    dialog = InputDialog()
-    
-    def __init__(self):
-        pass
+class Object(QGraphicsRectItem): 
+    def __init__(self,rect : QRectF, pen : QPen, brush : QBrush):
+        super().__init__(rect)
+        self.setFlag(self.ItemIsMovable)
+        self.setPen(pen)
+        self.setBrush(brush)
+        self.dialog = InputDialog()
     def get_type(self) -> str:
         return self.type
 
-    def get_rect(self) -> QGraphicsRectItem:
-        return self.rect
-
-    def on_doubleclick(self):
+    def mouseDoubleClickEvent(self,event):
         self.dialog.exec()
 
 class Router(Object):
     def __init__(self):
-        super().__init__()
-        self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(30, 30)))
-        self.rect.setFlag(self.rect.ItemIsMovable)
-        self.rect.setPen(QPen(Qt.black))
-        self.rect.setBrush(QBrush(Qt.gray))
-        
+        super().__init__(QRectF(QPointF(0, 0), QPointF(30, 30)),QPen(Qt.black),QBrush(Qt.gray))       
         self.type = "router"
-    def mouseDoubleClickEvent(event):
-        print("Рот ебал")
+    def mouseDoubleClickEvent(self,event):
+        print("Данная обработка не поддерживается")
 class Switch(Object):
     def __init__(self):
-        super().__init__()
-        self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(50, 30)))
-        self.rect.setFlag(self.rect.ItemIsMovable)
-        self.rect.setPen(QPen(Qt.black))
-        self.rect.setBrush(QBrush(Qt.white))
-
-        
+        super().__init__(QRectF(QPointF(0, 0), QPointF(50, 30)),QPen(Qt.black),QBrush(Qt.white)   )     
         self.type = "switch"
 class PC(Object):
     def __init__(self):
-        super().__init__()
-        self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(30, 30)))
-        self.rect.setFlag(self.rect.ItemIsMovable)
-        self.rect.setPen(QPen(Qt.black))
-        self.rect.setBrush(QBrush(Qt.gray))
+        super().__init__(QRectF(QPointF(0, 0), QPointF(30, 30)),QPen(Qt.black),QBrush(Qt.gray))
         self.type = "pc"
 
 def create_object_of_type(type : str) -> Object:
@@ -145,29 +129,11 @@ class MyWindow(QMainWindow):
 
     def add_object(self, object_type):
         obj = create_object_of_type(object_type)
-        self.scene.addItem(obj.get_rect())
+        self.scene.addItem(obj)
         self.objects.append(obj)
-    def open_table(self, obj):
-    # Create a dialog to get the IP address from the user
-        ip, ok = QInputDialog.getText(self, 'Enter IP Address', 'IP Address:', text=obj.data(0))
-        if ok:
-            # If the user clicks "OK", set the IP address as the object's data and update the table
-            obj.setData(0, ip)
-            self.update_table()
 
-    def update_table(self):
-    # Implement code to update the table with the data from the objects
-    # You can use the "self.objects" list to get the data for each object
-        pass
-    def show_ip_table(self, obj):
-        self.ip_table = QTableWidget(self)
-        self.ip_table.setGeometry(0, 0, 300, 200)
-        self.ip_table.setRowCount(1)
-        self.ip_table.setColumnCount(2)
-        self.ip_table.setHorizontalHeaderLabels(['Interface', 'IP address'])
-        self.ip_table.setItem(0, 0, QTableWidgetItem('Ethernet 0'))
-        self.ip_table.setItem(0, 1, QTableWidgetItem(''))
-        self.ip_table.cellChanged.connect(lambda row, column: self.update)
+
+
 
 
 
