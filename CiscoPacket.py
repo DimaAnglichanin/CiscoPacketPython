@@ -2,7 +2,8 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QPushButton, QGraphicsScene, QGraphicsView, \
     QTableWidget, QTableWidgetItem, QInputDialog, QGraphicsRectItem,QLabel,QLineEdit,QVBoxLayout,QDialog,QComboBox
 from PyQt5.QtGui import QColor, QBrush, QPen
-from PyQt5.QtCore import Qt, QPointF, QRectF
+from PyQt5.QtCore import Qt, QPointF, QRectF,pyqtSignal,QTimer,pyqtSlot
+
 
 
 class InputDialog(QDialog):
@@ -48,23 +49,33 @@ class InputDialog(QDialog):
         self.reject()
 
 class Object:
-
+    dialog = InputDialog()
+    
+    def __init__(self):
+        pass
     def get_type(self) -> str:
         return self.type
 
     def get_rect(self) -> QGraphicsRectItem:
         return self.rect
 
+    def on_doubleclick(self):
+        self.dialog.exec()
+
 class Router(Object):
     def __init__(self):
+        super().__init__()
         self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(30, 30)))
         self.rect.setFlag(self.rect.ItemIsMovable)
         self.rect.setPen(QPen(Qt.black))
         self.rect.setBrush(QBrush(Qt.gray))
         
         self.type = "router"
+    def mouseDoubleClickEvent(event):
+        print("Рот ебал")
 class Switch(Object):
     def __init__(self):
+        super().__init__()
         self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(50, 30)))
         self.rect.setFlag(self.rect.ItemIsMovable)
         self.rect.setPen(QPen(Qt.black))
@@ -74,6 +85,7 @@ class Switch(Object):
         self.type = "switch"
 class PC(Object):
     def __init__(self):
+        super().__init__()
         self.rect = QGraphicsRectItem(QRectF(QPointF(0, 0), QPointF(30, 30)))
         self.rect.setFlag(self.rect.ItemIsMovable)
         self.rect.setPen(QPen(Qt.black))
@@ -125,10 +137,6 @@ class MyWindow(QMainWindow):
         self.add_pc_button = QPushButton('Добавить PC', self)
         self.add_pc_button.clicked.connect(lambda: self.add_object('pc'))
         self.add_pc_button.setGeometry(10, 150, 150, 30)
-
-        self.add_pc_button = QPushButton('ДBFKJU', self)
-        self.add_pc_button.clicked.connect(lambda: self.dialog.exec())
-        self.add_pc_button.setGeometry(10, 200, 150, 30)
         
         # Создаем список объектов
         self.objects = []
