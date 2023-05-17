@@ -1,52 +1,12 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QPushButton, QGraphicsScene, QGraphicsView, \
+from PyQt5.QtWidgets import QApplication, QGraphicsSceneMouseEvent, QMainWindow, QDesktopWidget, QPushButton, QGraphicsScene, QGraphicsView, \
     QTableWidget, QTableWidgetItem, QInputDialog, QGraphicsRectItem,QLabel,QLineEdit,QVBoxLayout,QDialog,QComboBox
 from PyQt5.QtGui import QColor, QBrush, QPen
 from PyQt5.QtCore import Qt, QPointF, QRectF,pyqtSignal,QTimer,pyqtSlot
 from PyQt5.QtWidgets import QGraphicsItem
 
+from dialogs import RouterDialog, PCDialog, SwitchDialog
 
-class InputDialog(QDialog):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle('Внесите данные маршрутизатора')
-        self.layout = QVBoxLayout()
-
-        self.ipLabel = QLabel('IP-адрес:', self)
-        self.ipLineEdit = QLineEdit(self)
-        self.layout.addWidget(self.ipLabel)
-        self.layout.addWidget(self.ipLineEdit)
-
-        self.dnsLabel = QLabel('DNS-имя:', self)
-        self.dnsLineEdit = QLineEdit(self)
-        self.layout.addWidget(self.dnsLabel)
-        self.layout.addWidget(self.dnsLineEdit)
-
-        self.portLabel = QLabel('Количество портов:', self)
-        self.portComboBox = QComboBox(self)
-        self.portComboBox.addItems(['4', '8', '16'])
-        self.layout.addWidget(self.portLabel)
-        self.layout.addWidget(self.portComboBox)
-
-        self.okButton = QPushButton('OK', self)
-        self.okButton.clicked.connect(self.acceptDialog)
-        self.layout.addWidget(self.okButton)
-
-        self.cancelButton = QPushButton('Cancel', self)
-        self.cancelButton.clicked.connect(self.rejectDialog)
-        self.layout.addWidget(self.cancelButton)
-
-        self.setLayout(self.layout)
-
-    def acceptDialog(self):
-        self.accept()
-
-    def rejectDialog(self):
-        self.reject()
 
 class Object(QGraphicsRectItem): 
     def __init__(self,rect : QRectF, pen : QPen, brush : QBrush):
@@ -54,28 +14,30 @@ class Object(QGraphicsRectItem):
         self.setFlag(self.ItemIsMovable)
         self.setPen(pen)
         self.setBrush(brush)
-        self.dialog = InputDialog()
     def get_type(self) -> str:
         return self.type
-
-    def mouseDoubleClickEvent(self,event):
-        self.dialog.exec()
 
 class Router(Object):
     def __init__(self):
         super().__init__(QRectF(QPointF(0, 0), QPointF(30, 30)),QPen(Qt.black),QBrush(Qt.gray))       
+        self.dialog = RouterDialog()
         self.type = "router"
     def mouseDoubleClickEvent(self,event):
-        print("Данная обработка не поддерживается")
+        self.dialog.exec()
 class Switch(Object):
     def __init__(self):
         super().__init__(QRectF(QPointF(0, 0), QPointF(50, 30)),QPen(Qt.black),QBrush(Qt.white)   )     
         self.type = "switch"
+        self.dialog = SwitchDialog()
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.dialog.exec()
 class PC(Object):
     def __init__(self):
         super().__init__(QRectF(QPointF(0, 0), QPointF(30, 30)),QPen(Qt.black),QBrush(Qt.gray))
+        self.dialog = PCDialog()
         self.type = "pc"
-
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        self.dialog.exec()
 def create_object_of_type(type : str) -> Object:
     if type == 'switch':
         obj = Switch()
@@ -94,7 +56,6 @@ class MyWindow(QMainWindow):
         # Определяем размеры экрана пользователя
         screen = QDesktopWidget().screenGeometry()
         width, height = screen.width(), screen.height()
-        self.dialog = InputDialog()
         # Устанавливаем размеры окна
         self.setGeometry(0, 0, width, height)
 
